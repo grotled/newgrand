@@ -1,0 +1,117 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Program - The Grandfather Legacy Project</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .nav-link.active {
+      border-bottom: 2px solid #FFFFFF;
+    }
+  </style>
+</head>
+<body class="bg-white font-sans">
+  <nav class="bg-blue-900 text-white py-4 fixed w-full top-0 z-10">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Grandfather Legacy</h1>
+      <ul class="flex space-x-6">
+        <li><a href="index.html" class="nav-link text-white hover:text-red-300">Home</a></li>
+        <li><a href="mission.html" class="nav-link text-white hover:text-red-300">Mission</a></li>
+        <li><a href="benefits.html" class="nav-link text-white hover:text-red-300">Benefits</a></li>
+        <li><a href="program.html" class="nav-link active text-white hover:text-red-300">Program</a></li>
+        <li><a href="resources.html" class="nav-link text-white hover:text-red-300">Resources</a></li>
+        <li><a href="contact.html" class="nav-link text-white hover:text-red-300">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="py-16 pt-24">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-semibold text-center text-blue-900 mb-8">Program Outline</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-blue-900 mb-4">Bonding Activities</h3>
+          <ul class="list-disc pl-5 text-gray-700">
+            <li>Hunting, fishing, or camping to teach self-reliance.</li>
+            <li>Woodworking or car repair for hands-on confidence.</li>
+            <li>Family story nights to instill pride and values.</li>
+          </ul>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-blue-900 mb-4">Entrepreneurial Lessons</h3>
+          <ul class="list-disc pl-5 text-gray-700">
+            <li>Lemonade stand challenge to learn business basics.</li>
+            <li>Investing fundamentals for financial independence.</li>
+            <li>Pitching ideas to build discipline and ambition.</li>
+          </ul>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-blue-900 mb-4">Life Lessons & Wisdom</h3>
+          <ul class="list-disc pl-5 text-gray-700">
+            <li>Leadership via Teddy Roosevelt’s courage quotes.</li>
+            <li>Resilience through grandfather story videos.</li>
+            <li>Integrity as a core value in all actions.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-blue-900 text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+      <p>© 2025 The Grandfather Legacy Project. All rights reserved.</p>
+      <p class="mt-2">Contact: <a href="mailto:info@grandfatherlegacy.org" class="hover:text-red-300">info@grandfatherlegacy.org</a> | Follow us on social media</p>
+    </div>
+  </footer>
+
+  <script>
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
